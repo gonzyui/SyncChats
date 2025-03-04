@@ -11,10 +11,10 @@ class DiscordListener : ListenerAdapter() {
 
         if (event.author.isBot || event.channel.id != channelId) return
 
-        val username = event.member?.effectiveName ?: event.author.name // ✅ Vérifie si le pseudo est bien récupéré
+        val username = event.member?.effectiveName ?: event.author.name
         val message = event.message.contentDisplay
 
-        Bukkit.getLogger().info("[SyncChats] Received Discord message from $username: $message") // ✅ Debug log
+        Bukkit.getLogger().info("[SyncChats] Received Discord message from $username: $message")
 
         val formattedMessage = ConfigManager.getFormattedMessage(
             "chat_format.discord_to_minecraft",

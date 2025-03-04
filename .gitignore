@@ -1,0 +1,65 @@
+# 💾 Gradle Files
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# 📦 IntelliJ / JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# 🏗️ Compiled Classes & JARs
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# ⚙️ OS-Specific Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ⚠️ Secrets & Sensitive Files
+*.key
+*.pem
+*.crt
+*.p12
+*.env
+
+# 📝 Logs & Reports
+logs/
+crash-reports/
+hs_err_pid*
+debug.log
+
+# ⚡ Minecraft & Plugin-Generated Files
+plugins/    # Prevent accidental inclusion of other plugins
+server.properties
+banned-players.json
+banned-ips.json
+whitelist.json
+ops.json
+usercache.json
+spigot.yml
+bukkit.yml
+paper.yml
+
+# 🚀 CI/CD Build Outputs
+dist/
+target/
+node_modules/
+.yarn/
+.npm/
+.vscode/
+
+# 📜 Ignore JDA / Discord Debug Files
+*.db
+*.sqlite
+
+.kotlin/
+test/

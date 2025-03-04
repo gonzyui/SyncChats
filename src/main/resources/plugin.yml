@@ -1,0 +1,19 @@
+name: SyncChats
+main: xyz.gonzyui.syncchats.SyncChats
+version: 1.0
+api-version: 1.13
+authors: [gonzyui]
+description: Synchronizes Minecraft chat with a Discord channel.
+
+commands:
+  syncchatsreload:
+    description: Reloads the SyncChats configuration.
+    usage: /syncchatsreload
+    permission: syncchats.reload
+    permission-message: You don't have permission to use this command!
+    aliases: [scr, syncchatreload]
+
+permissions:
+  syncchats.reload:
+    description: Allows reloading the plugin configuration.
+    default: op

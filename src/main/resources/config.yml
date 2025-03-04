@@ -1,0 +1,40 @@
+# ============================================
+# 🔧 SyncChats Configuration File
+# This file controls how Minecraft chat syncs with Discord.
+# ============================================
+
+discord:
+  # 🔑 Discord Bot Token
+  # This is required if you want the bot to send & receive messages.
+  # ⚠ NEVER share this token! Keep it secret.
+  token: "YOUR_DISCORD_BOT_TOKEN_HERE"
+
+  # 🏷️ Discord Channel ID
+  # The bot will listen for messages in this channel and relay them to Minecraft.
+  # You can find this by enabling Developer Mode in Discord and right-clicking the channel.
+  channel_id: "YOUR_DISCORD_CHANNEL_ID_HERE"
+
+  # 🌍 Webhook URL
+  # Used to send messages from Minecraft players to Discord (instead of the bot account).
+  # If this is empty, the bot itself will send messages.
+  webhook_url: "YOUR_DISCORD_WEBHOOK_URL_HERE"
+
+chat_format:
+  # 📤 Minecraft ➝ Discord Message Format
+  # This controls how Minecraft messages appear in Discord.
+  # Available placeholders:
+  #   {player}  - The player's name
+  #   {message} - The player's message
+  minecraft_to_discord: "{message}"
+
+  # 📥 Discord ➝ Minecraft Message Format
+  # This controls how Discord messages appear in Minecraft.
+  # Available placeholders:
+  #   {user}    - The Discord user's name
+  #   {message} - The Discord message
+  discord_to_minecraft: "§9[Discord] §r{user}: {message}"
+
+# ============================================
+# ✅ End of Configuration
+# Restart or reload the server after making changes.
+# ============================================

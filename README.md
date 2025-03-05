@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://www.spigotmc.org/data/resource_icons/123/123042.jpg?1741111607" alt="logo" />
+</div>
+
 # 🌐 SyncChats - Minecraft & Discord Chat Synchronization
 
 SyncChats is a Minecraft plugin that synchronizes chat between your **Minecraft server** and a **Discord channel** using a webhook or a bot.

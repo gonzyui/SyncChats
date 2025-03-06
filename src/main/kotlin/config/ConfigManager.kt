@@ -19,10 +19,26 @@ object ConfigManager {
         }
 
         config = YamlConfiguration.loadConfiguration(configFile)
+        plugin.logger.info("✅ Configuration initialized successfully.")
     }
 
     fun getConfig(): FileConfiguration {
         return config ?: throw IllegalStateException("ConfigManager has not been initialized! Call `ConfigManager.init(plugin)` in `onEnable()`.")
+    }
+
+    fun reloadConfig() {
+        try {
+            val configFile = File(plugin.dataFolder, "config.yml")
+            if (!configFile.exists()) {
+                plugin.saveDefaultConfig() // Ensures default config exists if missing
+                plugin.logger.warning("⚠️ config.yml was missing, default config has been created.")
+            }
+
+            config = YamlConfiguration.loadConfiguration(configFile)
+            plugin.logger.info("🔄 Configuration reloaded successfully!")
+        } catch (e: Exception) {
+            plugin.logger.warning("❌ Failed to reload configuration: ${e.message}")
+        }
     }
 
     fun getFormattedMessage(path: String, placeholders: Map<String, String>): String {

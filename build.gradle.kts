@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "xyz.gonzyui.syncchats"
-version = "1.0-SNAPSHOT"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -16,7 +16,6 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
-    compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
 
     implementation("net.dv8tion:JDA:5.0.0-beta.12") {
@@ -25,7 +24,7 @@ dependencies {
 
     implementation("com.neovisionaries:nv-websocket-client:2.14")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okio:okio:2.10.0")
+    implementation("com.squareup.okio:okio:3.4.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
@@ -50,6 +49,9 @@ configurations.all {
 tasks {
     shadowJar {
         archiveClassifier.set("")
+        exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
+
+        exclude("**/*.md", "**/*.txt", "**/*.properties")
 
         mergeServiceFiles()
 
@@ -71,6 +73,8 @@ tasks {
             include(dependency("org.jetbrains.kotlin:kotlin-stdlib"))
             include(dependency("org.jetbrains.kotlin:kotlin-reflect"))
         }
+
+        minimize()
     }
 
     build {
@@ -79,7 +83,9 @@ tasks {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 kotlin {

@@ -1,12 +1,15 @@
 package xyz.gonzyui.syncchats
 
-import org.bukkit.plugin.java.JavaPlugin
+import xyz.gonzyui.syncchats.commands.StatusCommand
 import xyz.gonzyui.syncchats.commands.ReloadCommand
 import xyz.gonzyui.syncchats.config.ConfigManager
-import xyz.gonzyui.syncchats.discord.DiscordBot
-import xyz.gonzyui.syncchats.listeners.ChatListener
+import xyz.gonzyui.syncchats.update.UpdateChecker
+import xyz.gonzyui.syncchats.minecraft.Listeners
+import org.bukkit.plugin.java.JavaPlugin
+import xyz.gonzyui.syncchats.discord.Bot
 
 class SyncChats : JavaPlugin() {
+
     override fun onEnable() {
         logger.info("✅ SyncChats enabled! 🌐")
 
@@ -16,7 +19,13 @@ class SyncChats : JavaPlugin() {
             logger.warning("⚠️ Failed to load config! Default settings will be used.")
         }
 
-        getCommand("syncchatsreload")?.setExecutor(ReloadCommand(this))
+        UpdateChecker().checkForUpdates()
+
+        val reloadCommand = getCommand("syncchatsreload")
+        reloadCommand?.setExecutor(ReloadCommand())
+
+        val statusCommand = getCommand("syncchatsstatus")
+        statusCommand?.setExecutor(StatusCommand())
 
         val config = ConfigManager.getConfig()
         val webhookUrl = config.getString("discord.webhook_url")
@@ -30,16 +39,17 @@ class SyncChats : JavaPlugin() {
 
         if (!discordToken.isNullOrEmpty() && !discordChannelId.isNullOrEmpty()) {
             logger.info("🤖 Starting Discord bot...")
-            DiscordBot.start()
+            Bot.start()
         } else {
             logger.warning("⚠️ Discord bot token or channel ID is missing! Messages from Discord won't be received.")
         }
 
-        server.pluginManager.registerEvents(ChatListener(), this)
+        server.pluginManager.registerEvents(Listeners(), this)
     }
 
     override fun onDisable() {
         logger.info("❌ SyncChats disabled!")
-        DiscordBot.shutdown()
+
+        Bot.shutdown()
     }
 }

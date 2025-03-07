@@ -31,12 +31,78 @@ SyncChats is a Minecraft plugin that synchronizes chat between your **Minecraft 
 ## ⚙️ Configuration (`config.yml`)
 
 ```yaml
+# ============================================
+# 🔧 SyncChats Configuration File
+# This file controls how Minecraft chat syncs with Discord.
+# Customize this file to configure how your Minecraft server communicates with Discord!
+# ============================================
+version: 1.0.2
+
+updates:
+  # 📥 Enable automatic update checks for the plugin.
+  # When enabled, the plugin will notify you if a new version is available!
+  check: true
+  # 📲 If enabled, SyncChats will send a Discord notification when a new update is available.
+  discordNotify: true
+
+minecraft_events:
+  # ✅ Enable or disable sending events (player joining/leaving) to Discord.
+  enabled: true
+  # 📝 Customize the message sent to Discord when a player joins the server.
+  # The placeholder {player} will be replaced by the player's name.
+  join_message: "{player} joined the server."
+  # 📝 Customize the message sent to Discord when a player leaves the server.
+  # The placeholder {player} will be replaced by the player's name.
+  left_message: "{player} left the server."
+  # Customize the name of the Webhook sender (e.g., "Server" or "Minecraft Server").
+  server_name: "SyncChats"
+
 discord:
-token: "YOUR_DISCORD_BOT_TOKEN"  # Required for bot-based chat sync
-channel_id: "DISCORD_CHANNEL_ID"  # ID of the channel where messages will be sent/received
-webhook_url: "DISCORD_WEBHOOK_URL"  # Optional - Use webhook instead of bot
+  # 🔑 Discord Bot Token
+  # This token is required for the bot to send and receive messages in Discord.
+  # 🚨 Never share your bot token! Keep it secret to avoid misuse.
+  token: "YOUR_DISCORD_BOT_TOKEN_HERE"
+
+  # 🏷️ Discord Channel ID
+  # This is the ID of the Discord channel where the bot will listen for messages.
+  # To find this, enable Developer Mode in Discord and right-click the channel.
+  channel_id: "YOUR_DISCORD_CHANNEL_ID_HERE"
+
+  # 🌍 Webhook URL
+  # If you want to send messages from Minecraft to Discord without using the bot, enter the webhook URL here.
+  # If left empty, the bot itself will send messages to Discord.
+  webhook_url: "YOUR_DISCORD_WEBHOOK_URL_HERE"
+
+  # 📊 Bot Status Configuration
+  # Customize the activity/status that your Discord bot shows.
+  status:
+    # 🎮 Type of status: WATCHING, PLAYING, or STREAMING.
+    # WATCHING: Bot is watching something (e.g., number of players in Minecraft).
+    # PLAYING: Bot is playing something (e.g., Minecraft).
+    # LISTENING: Bot is listening something (e.g., Spotify).
+    type: "WATCHING"
+
+    # 📝 Customize the message the bot shows.
+    # Use the placeholder {players} to display the number of players online in Minecraft.
+    content: "{players} players in Minecraft."
 
 chat_format:
-minecraft_to_discord: "**{player}**: {message}"  # Format for Minecraft → Discord
-discord_to_minecraft: "[Discord] {user}: {message}"  # Format for Discord → Minecraft
+  # 📤 Minecraft ➝ Discord Message Format
+  # This controls how Minecraft messages appear in Discord.
+  # Available placeholders:
+  #   {player}  - The player's name
+  #   {message} - The player's message
+  minecraft_to_discord: "{message}"
+
+  # 📥 Discord ➝ Minecraft Message Format
+  # This controls how Discord messages appear in Minecraft.
+  # Available placeholders:
+  #   {user}    - The Discord user's name
+  #   {message} - The Discord message
+  discord_to_minecraft: "§9[Discord] §r{user}: {message}"
+
+# ============================================
+# ✅ End of Configuration
+# Once you've made changes, restart or reload your server for them to take effect!
+# ============================================
 ```

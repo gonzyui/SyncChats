@@ -16,7 +16,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
-    compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 
     implementation("net.dv8tion:JDA:5.0.0-beta.12") {
         exclude(module = "opus-java")
@@ -82,12 +82,6 @@ tasks {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}
-
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(8)
 }

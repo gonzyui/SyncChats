@@ -13,21 +13,32 @@ class SyncChats : JavaPlugin() {
     override fun onEnable() {
         logger.info("✅ SyncChats enabled! 🌐")
 
-        try {
-            ConfigManager.init(this)
-        } catch (e: Exception) {
-            logger.warning("⚠️ Failed to load config! Default settings will be used.")
-        }
+        runCatching { ConfigManager.init(this) }
+            .onFailure {
+                logger.warning("⚠️ Failed to load config! Default settings will be used.")
+            }
 
         UpdateChecker().checkForUpdates()
 
-        val reloadCommand = getCommand("syncchatsreload")
-        reloadCommand?.setExecutor(ReloadCommand())
-
-        val statusCommand = getCommand("syncchatsstatus")
-        statusCommand?.setExecutor(StatusCommand())
+        listOf(
+            "syncchatsreload" to ReloadCommand(),
+            "syncchatsstatus" to StatusCommand()
+        ).forEach { (name, executor) ->
+            getCommand(name)?.setExecutor(executor)
+        }
 
         val config = ConfigManager.getConfig()
+        initializeDiscord(config)
+
+        server.pluginManager.registerEvents(Listeners(), this)
+    }
+
+    override fun onDisable() {
+        logger.info("❌ SyncChats disabled!")
+        Bot.shutdown()
+    }
+
+    private fun initializeDiscord(config: org.bukkit.configuration.Configuration) {
         val webhookUrl = config.getString("discord.webhook_url")
         val discordToken = config.getString("discord.token")
         val discordChannelId = config.getString("discord.channel_id")
@@ -43,13 +54,5 @@ class SyncChats : JavaPlugin() {
         } else {
             logger.warning("⚠️ Discord bot token or channel ID is missing! Messages from Discord won't be received.")
         }
-
-        server.pluginManager.registerEvents(Listeners(), this)
-    }
-
-    override fun onDisable() {
-        logger.info("❌ SyncChats disabled!")
-
-        Bot.shutdown()
     }
 }

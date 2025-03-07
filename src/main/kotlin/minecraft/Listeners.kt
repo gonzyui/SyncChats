@@ -1,57 +1,54 @@
 package xyz.gonzyui.syncchats.minecraft
 
-import org.bukkit.event.player.AsyncPlayerChatEvent
-import xyz.gonzyui.syncchats.config.ConfigManager
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import xyz.gonzyui.syncchats.discord.Bot
+import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.Bukkit
+import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import xyz.gonzyui.syncchats.config.ConfigManager
+import xyz.gonzyui.syncchats.discord.Bot
 
 class Listeners : Listener {
 
     @EventHandler
     fun onPlayerChat(event: AsyncPlayerChatEvent) {
-        val discordToken = event.player.server.pluginManager.getPlugin("SyncChats")?.config?.getString("discord.token")
-
-        if (discordToken.isNullOrEmpty()) {
+        val config = ConfigManager.getConfig()
+        if (config.getString("discord.token").isNullOrEmpty()) {
             Bukkit.getLogger().warning("[SyncChats] Discord bot is not configured. No message sent to Discord.")
             return
         }
-
         Bot.sendMessageToDiscord(event.player.name, event.message)
     }
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        if (ConfigManager.getConfig().getBoolean("minecraft_events.enabled")) {
-            val playerName = event.player.name
-            val serverName = ConfigManager.getConfig().getString("minecraft_events.server_name", "Server")
-            val joinMessage = ConfigManager.getConfig().getString("minecraft_events.join_message", "{player} joined the server!")
-                ?.replace("{player}", playerName)
-
-            if (serverName != null) {
-                if (joinMessage != null) {
-                    Bot.sendMessageToDiscord(serverName, joinMessage, Bot.jda?.selfUser?.avatarUrl)
-                }
-            }
-        }
+        sendMinecraftEventMessage(
+            playerName = event.player.name,
+            messageKey = "join_message",
+            defaultMessage = "{player} joined the server!"
+        )
     }
 
     @EventHandler
     fun onPlayerLeave(event: PlayerQuitEvent) {
-        if (ConfigManager.getConfig().getBoolean("minecraft_events.enabled")) {
-            val playerName = event.player.name
-            val serverName = ConfigManager.getConfig().getString("minecraft_events.server_name", "Server")
-            val leftMessage = ConfigManager.getConfig().getString("minecraft_events.left_message", "{player} left the server!")
-                ?.replace("{player}", playerName)
+        sendMinecraftEventMessage(
+            playerName = event.player.name,
+            messageKey = "left_message",
+            defaultMessage = "{player} left the server!"
+        )
+    }
 
-            if (serverName != null) {
-                if (leftMessage != null) {
-                    Bot.sendMessageToDiscord(serverName, leftMessage, Bot.jda?.selfUser?.avatarUrl)
-                }
-            }
+    private fun sendMinecraftEventMessage(playerName: String, messageKey: String, defaultMessage: String) {
+        val config = ConfigManager.getConfig()
+        if (!config.getBoolean("minecraft_events.enabled")) return
+
+        val serverName = config.getString("minecraft_events.server_name", "Server")
+        val template = config.getString("minecraft_events.$messageKey", defaultMessage)
+        val message = template?.replace("{player}", playerName)
+
+        if (!serverName.isNullOrEmpty() && !message.isNullOrEmpty()) {
+            Bot.sendMessageToDiscord(serverName, message, Bot.jda?.selfUser?.avatarUrl)
         }
     }
 }

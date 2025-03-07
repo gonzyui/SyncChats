@@ -23,29 +23,30 @@ object ConfigManager {
     }
 
     fun getConfig(): FileConfiguration {
-        return config ?: throw IllegalStateException("ConfigManager has not been initialized! Call `ConfigManager.init(plugin)` in `onEnable()`.")
+        return config ?: throw IllegalStateException(
+            "ConfigManager has not been initialized! Call `ConfigManager.init(plugin)` in `onEnable()`."
+        )
     }
 
     fun reloadConfig() {
-        try {
+        runCatching {
             val configFile = File(plugin.dataFolder, "config.yml")
             if (!configFile.exists()) {
-                plugin.saveDefaultConfig() // Ensures default config exists if missing
+                plugin.saveDefaultConfig()
                 plugin.logger.warning("⚠️ config.yml was missing, default config has been created.")
             }
-
             config = YamlConfiguration.loadConfiguration(configFile)
             plugin.logger.info("🔄 Configuration reloaded successfully!")
-        } catch (e: Exception) {
+        }.onFailure { e ->
             plugin.logger.warning("❌ Failed to reload configuration: ${e.message}")
         }
     }
 
     fun getFormattedMessage(path: String, placeholders: Map<String, String>): String {
-        var message = getConfig().getString(path, "{message}") ?: "{message}"
-        placeholders.forEach { (key, value) ->
-            message = message.replace("{$key}", value)
-        }
-        return message
+        return getConfig().getString(path, "{message}")?.let { baseMessage ->
+            placeholders.entries.fold(baseMessage) { message, (key, value) ->
+                message.replace("{$key}", value)
+            }
+        } ?: "{message}"
     }
 }

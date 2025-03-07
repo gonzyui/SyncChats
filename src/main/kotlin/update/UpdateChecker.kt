@@ -3,8 +3,8 @@ package xyz.gonzyui.syncchats.update
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import xyz.gonzyui.syncchats.config.ConfigManager
-import java.net.HttpURLConnection
 import org.json.simple.JSONObject
+import java.net.HttpURLConnection
 import okhttp3.OkHttpClient
 import org.bukkit.Bukkit
 import okhttp3.Request
@@ -12,35 +12,38 @@ import java.net.URL
 
 class UpdateChecker {
 
+    companion object {
+        private val httpClient = OkHttpClient()
+        private const val PLUGIN_ID = "123042"
+    }
+
     fun checkForUpdates() {
-        val checkUpdates = ConfigManager.getConfig().getBoolean("updates.check")
-        val discordNotify = ConfigManager.getConfig().getBoolean("updates.discordNotify")
+        val config = ConfigManager.getConfig()
+        if (!config.getBoolean("updates.check")) return
 
-        if (checkUpdates) {
-            val pluginId = "123042"
+        try {
+            val latestVersion = fetchLatestVersion() ?: return
+            val currentVersion = Bukkit.getPluginManager().getPlugin("SyncChats")?.description?.version
 
-            try {
-                val url = URL("https://api.spigotmc.org/legacy/update.php?resource=$pluginId")
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "GET"
+            if (currentVersion != latestVersion) {
+                val message = "A new version of SyncChats is available: $latestVersion!"
 
-                val latestVersion = connection.inputStream.bufferedReader().readText()
-
-                val currentVersion = Bukkit.getPluginManager().getPlugin("SyncChats")?.description?.version
-
-                if (currentVersion != latestVersion) {
-                    val message = "A new version of SyncChats is available: $latestVersion!"
-
-                    if (discordNotify) {
-                        notifyDiscord(message)
-                    }
-
-                    logToMinecraft(message)
+                if (config.getBoolean("updates.discordNotify")) {
+                    notifyDiscord(message)
                 }
-
-            } catch (e: Exception) {
-                e.printStackTrace()
+                logToMinecraft(message)
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun fetchLatestVersion(): String? {
+        val url = URL("https://api.spigotmc.org/legacy/update.php?resource=$PLUGIN_ID")
+        val connection = url.openConnection() as HttpURLConnection
+        return connection.run {
+            requestMethod = "GET"
+            inputStream.bufferedReader().use { it.readText().trim() }
         }
     }
 
@@ -49,25 +52,23 @@ class UpdateChecker {
     }
 
     private fun createDiscordMessage(message: String): JSONObject {
-        val webhookUsername = "SyncChats"
-        val avatarUrl = "https://www.spigotmc.org/data/resource_icons/123/123042.jpg?1741111607"
-
         return JSONObject().apply {
-            put("username", webhookUsername)
-            put("avatar_url", avatarUrl)
+            put("username", "SyncChats")
+            put("avatar_url", "https://www.spigotmc.org/data/resource_icons/123/123042.jpg?1741111607")
             put("content", message)
         }
     }
 
     private fun notifyDiscord(message: String) {
         val webhookUrl = ConfigManager.getConfig().getString("discord.webhook_url")
+        if (webhookUrl.isNullOrEmpty()) return
 
-        if (!webhookUrl.isNullOrEmpty()) {
-            val json = createDiscordMessage(message)
-            val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-            val request = Request.Builder().url(webhookUrl).post(requestBody).build()
+        val json = createDiscordMessage(message)
+        val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+        val request = Request.Builder().url(webhookUrl).post(requestBody).build()
 
-            OkHttpClient().newCall(request).execute()
+        runCatching {
+            httpClient.newCall(request).execute().use {}
         }
     }
 }

@@ -1,15 +1,17 @@
 package xyz.gonzyui.syncchats.discord
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import xyz.gonzyui.syncchats.config.ConfigManager
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.entities.Activity
-import org.bukkit.scheduler.BukkitRunnable
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.bukkit.Bukkit
+import org.bukkit.scheduler.BukkitRunnable
+import xyz.gonzyui.syncchats.config.ConfigManager
 
 class DiscordListener : ListenerAdapter() {
+
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        val channelId = ConfigManager.getConfig().getString("discord.channel_id") ?: return
+        val config = ConfigManager.getConfig()
+        val channelId = config.getString("discord.channel_id") ?: return
 
         if (event.author.isBot || event.channel.id != channelId) return
 
@@ -28,28 +30,32 @@ class DiscordListener : ListenerAdapter() {
 
     fun updateBotStatus() {
         val onlinePlayers = Bukkit.getOnlinePlayers().size
-        val statusType = ConfigManager.getConfig().getString("discord.status.type", "WATCHING")
-        val statusContent = ConfigManager.getConfig().getString("discord.status.content", "Watching {players} players in Minecraft")
+        val config = ConfigManager.getConfig()
 
-        val formattedContent = statusContent?.replace("{players}", onlinePlayers.toString())
+        val statusType = config.getString("discord.status.type", "WATCHING")?.uppercase()
+        val statusTemplate = config.getString("discord.status.content", "Watching {players} players in Minecraft") ?: ""
+        val formattedContent = statusTemplate.replace("{players}", onlinePlayers.toString())
 
-        val activity = when (statusType?.uppercase()) {
-            "PLAYING" -> formattedContent?.let { Activity.playing(it) }
-            "WATCHING" -> formattedContent?.let { Activity.watching(it) }
-            "LISTENING" -> formattedContent?.let { Activity.listening(it) }
-            else -> formattedContent?.let { Activity.playing(it) }
+        val activity = when (statusType) {
+            "PLAYING" -> Activity.playing(formattedContent)
+            "LISTENING" -> Activity.listening(formattedContent)
+            "WATCHING" -> Activity.watching(formattedContent)
+            else -> Activity.playing(formattedContent)
         }
 
         Bot.jda?.presence?.activity = activity
     }
 
     fun startStatusUpdateTask() {
-        Bukkit.getPluginManager().getPlugin("SyncChats")?.let {
-            object : BukkitRunnable() {
-                override fun run() {
-                    updateBotStatus()
-                }
-            }.runTaskTimer(it, 0L, 600L)
+        val plugin = Bukkit.getPluginManager().getPlugin("SyncChats")
+        if (plugin == null) {
+            Bukkit.getLogger().warning("[SyncChats] Plugin not found! Cannot start Discord status update task.")
+            return
         }
+        object : BukkitRunnable() {
+            override fun run() {
+                updateBotStatus()
+            }
+        }.runTaskTimer(plugin, 0L, 600L)
     }
 }

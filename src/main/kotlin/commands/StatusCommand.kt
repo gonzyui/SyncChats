@@ -1,9 +1,9 @@
 package xyz.gonzyui.syncchats.commands
 
-import org.bukkit.command.CommandExecutor
-import xyz.gonzyui.syncchats.discord.Bot
-import org.bukkit.command.CommandSender
 import org.bukkit.command.Command
+import org.bukkit.command.CommandExecutor
+import org.bukkit.command.CommandSender
+import xyz.gonzyui.syncchats.discord.Bot
 
 class StatusCommand : CommandExecutor {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
@@ -13,12 +13,11 @@ class StatusCommand : CommandExecutor {
         }
 
         val botStatus = if (Bot.isRunning()) "Running" else "Stopped"
-
-        val statusMessage = StringBuilder()
-            .append("§e[SyncChats] Plugin Status:\n")
-            .append("§7Plugin: §aActive\n")
-            .append("§7Discord Bot: §b$botStatus")
-            .toString()
+        val statusMessage = """
+            §e[SyncChats] Plugin Status:
+            §7Plugin: §aActive
+            §7Discord Bot: §b$botStatus
+        """.trimIndent()
 
         sender.sendMessage(statusMessage)
         return true

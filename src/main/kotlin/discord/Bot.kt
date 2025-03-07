@@ -1,29 +1,34 @@
 package xyz.gonzyui.syncchats.discord
 
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
-import net.dv8tion.jda.api.requests.GatewayIntent
-import xyz.gonzyui.syncchats.config.ConfigManager
-import net.dv8tion.jda.api.hooks.ListenerAdapter
-import net.dv8tion.jda.api.JDABuilder
-import java.util.concurrent.TimeUnit
-import org.json.simple.JSONObject
 import net.dv8tion.jda.api.JDA
-import java.io.IOException
+import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.events.session.ReadyEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.requests.GatewayIntent
 import org.bukkit.Bukkit
-import okhttp3.*
+import org.json.simple.JSONObject
+import xyz.gonzyui.syncchats.config.ConfigManager
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 object Bot : ListenerAdapter() {
-    private val client = OkHttpClient.Builder()
+    private val client: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
         .build()
 
     var jda: JDA? = null
+        private set
+
+    private val discordListener = DiscordListener()
 
     fun start() {
-        val token = ConfigManager.getConfig().getString("discord.token")
-        val channelId = ConfigManager.getConfig().getString("discord.channel_id")
+        val config = ConfigManager.getConfig()
+        val token = config.getString("discord.token")
+        val channelId = config.getString("discord.channel_id")
 
         if (token.isNullOrEmpty() || channelId.isNullOrEmpty()) {
             Bukkit.getLogger().warning("[SyncChats] Discord bot token or channel ID is missing in config.yml! Bot won't start.")
@@ -33,31 +38,29 @@ object Bot : ListenerAdapter() {
         try {
             jda = JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
-                .addEventListeners(DiscordListener())
-                .build()
-
-            jda?.addEventListener(object : ListenerAdapter() {
-                override fun onReady(event: net.dv8tion.jda.api.events.session.ReadyEvent) {
-                    DiscordListener().startStatusUpdateTask()
+                .addEventListeners(discordListener)
+                .build().also { jdaInstance ->
+                    jdaInstance.addEventListener(object : ListenerAdapter() {
+                        override fun onReady(event: ReadyEvent) {
+                            discordListener.startStatusUpdateTask()
+                        }
+                    })
                 }
-            })
         } catch (e: Exception) {
             Bukkit.getLogger().warning("[SyncChats] Failed to start Discord bot: ${e.message}")
         }
     }
 
     fun shutdown() {
-        try {
+        runCatching {
             jda?.shutdown()
             Bukkit.getLogger().info("[SyncChats] Discord bot shutdown successfully.")
-        } catch (e: Exception) {
-            Bukkit.getLogger().warning("[SyncChats] Failed to shutdown Discord bot: ${e.message}")
+        }.onFailure {
+            Bukkit.getLogger().warning("[SyncChats] Failed to shutdown Discord bot: ${it.message}")
         }
     }
 
-    fun isRunning(): Boolean {
-        return jda?.status == JDA.Status.CONNECTED
-    }
+    fun isRunning(): Boolean = jda?.status == JDA.Status.CONNECTED
 
     fun sendMessageToDiscord(playerName: String, message: String, avatarUrl: String? = null) {
         if (!isRunning()) {
@@ -65,7 +68,8 @@ object Bot : ListenerAdapter() {
             return
         }
 
-        val webhookUrl = ConfigManager.getConfig().getString("discord.webhook_url")
+        val config = ConfigManager.getConfig()
+        val webhookUrl = config.getString("discord.webhook_url")
         if (webhookUrl.isNullOrEmpty()) {
             Bukkit.getLogger().warning("[SyncChats] Webhook URL is not set in config!")
             return

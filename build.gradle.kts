@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "xyz.gonzyui.syncchats"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     mavenCentral()
@@ -29,12 +29,12 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
-    implementation("org.slf4j:slf4j-api:2.0.7")
-    implementation("org.slf4j:slf4j-simple:2.0.7")
-    implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("org.yaml:snakeyaml:2.0")
 
+    compileOnly("javax.annotation:javax.annotation-api:1.3.2")
+    compileOnly("org.slf4j:slf4j-api:2.0.7")
+    compileOnly("org.slf4j:slf4j-simple:2.0.7")
+    implementation("org.apache.commons:commons-collections4:4.4")
+    compileOnly("org.yaml:snakeyaml:2.0")
     implementation("net.sf.trove4j:trove4j:3.0.3")
 }
 
@@ -49,8 +49,8 @@ configurations.all {
 tasks {
     shadowJar {
         archiveClassifier.set("")
-        exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
 
+        exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
         exclude("**/*.md", "**/*.txt", "**/*.properties")
 
         mergeServiceFiles()
@@ -64,12 +64,8 @@ tasks {
             include(dependency("com.fasterxml.jackson.core:jackson-core"))
             include(dependency("com.fasterxml.jackson.core:jackson-annotations"))
             include(dependency("org.jetbrains.kotlinx:kotlinx-coroutines-core"))
-            include(dependency("javax.annotation:javax.annotation-api"))
-            include(dependency("org.slf4j:slf4j-api"))
-            include(dependency("org.slf4j:slf4j-simple"))
             include(dependency("org.apache.commons:commons-collections4"))
             include(dependency("net.sf.trove4j:trove4j"))
-            include(dependency("org.yaml:snakeyaml"))
             include(dependency("org.jetbrains.kotlin:kotlin-stdlib"))
             include(dependency("org.jetbrains.kotlin:kotlin-reflect"))
         }

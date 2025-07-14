@@ -1,74 +1,265 @@
 # ============================================
-# SyncChats Configuration File
-# This file controls how Minecraft chat syncs with Discord.
-# Customize this file to configure how your Minecraft server communicates with Discord!
+# SyncChats Configuration File v1.0.4
+# Advanced Minecraft & Discord Chat Synchronization
 # ============================================
-version: 1.0.3
+version: 1.0.4
 
+# Debug mode for detailed logging
+debug: false
+
+# Performance settings
+performance:
+  cache_messages: true
+  max_cache_size: 1000
+  cache_cleanup_interval: 300
+
+# Update checker settings
 updates:
-  # Enable automatic update checks for the plugin.
-  # When enabled, the plugin will notify you if a new version is available!
   check: true
-  # If enabled, SyncChats will send a Discord notification when a new update is available.
-  discordNotify: true
+  discord_notify: true
 
-minecraft_events:
-  # Enable or disable sending events (player joining/leaving) to Discord.
-  enabled: true
-  # Customize the message sent to Discord when a player joins the server.
-  # The placeholder {player} will be replaced by the player's name.
-  join_message: "{player} joined the server."
-  # Customize the message sent to Discord when a player leaves the server.
-  # The placeholder {player} will be replaced by the player's name.
-  left_message: "{player} left the server."
-  # Customize the name of the Webhook sender (e.g., "Server" or "Minecraft Server").
-  server_name: "SyncChats"
-
+# Discord connection settings
 discord:
-  # Discord Bot Token
-  # This token is required for the bot to send and receive messages in Discord.
-  # Never share your bot token! Keep it secret to avoid misuse.
-  token: "YOUR_DISCORD_BOT_TOKEN_HERE"
-
-  # Discord Channel ID
-  # This is the ID of the Discord channel where the bot will listen for messages.
-  # To find this, enable Developer Mode in Discord and right-click the channel.
-  channel_id: "YOUR_DISCORD_CHANNEL_ID_HERE"
-
-  # Webhook URL
-  # If you want to send messages from Minecraft to Discord without using the bot, enter the webhook URL here.
-  # If left empty, the bot itself will send messages to Discord.
-  webhook_url: "YOUR_DISCORD_WEBHOOK_URL_HERE"
-
-  # Bot Status Configuration
-  # Customize the activity/status that your Discord bot shows.
+  # Bot token for two-way communication
+  token: ""
+  # Channel ID where messages are synchronized
+  channel_id: ""
+  # Webhook URL for one-way communication (Minecraft -> Discord)
+  webhook_url: ""
+  
+  # Communication mode: "bot", "webhook", or "both"
+  # bot: Use bot for all messages (two-way)
+  # webhook: Use webhook for Minecraft->Discord, no Discord->Minecraft
+  # both: Use webhook for Minecraft->Discord, bot for Discord->Minecraft
+  mode: "both"
+  
+  # IMPORTANT: For slash commands to work, your bot needs these permissions:
+  # - applications.commands (required for slash commands)
+  # - Send Messages, View Channel, Read Message History
+  # Re-invite your bot with this URL (replace YOUR_BOT_ID):
+  # https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot+applications.commands&permissions=68608
+  
+  # Discord commands configuration (now using Slash Commands)
+  commands:
+    # Enable Discord slash commands
+    enabled: true
+    
+    # Users with full admin access (Discord User IDs)
+    admin_users:
+      - ""
+    
+    # Roles with full admin access (Discord Role IDs)
+    admin_roles:
+      - ""
+    
+    # Command-specific permissions
+    permissions:
+      reload:
+        users: []
+        roles: []
+      status:
+        users: []
+        roles: []
+      stats:
+        users: []
+        roles: []
+      serverstatus:
+        users: []
+        roles: []
+    
+    # Slash command configurations
+    slash_commands:
+      reload:
+        name: "reload"
+        description: "Reload the plugin configuration"
+        enabled: true
+        responses:
+          success: "✅ Configuration reloaded successfully!"
+          error: "❌ Failed to reload configuration"
+          no_permission: "❌ You don't have permission to use this command"
+      
+      status:
+        name: "status"
+        description: "Display the plugin status"
+        enabled: true
+        responses:
+          title: "📊 **Plugin Status**"
+          no_permission: "❌ You don't have permission to use this command"
+      
+      stats:
+        name: "stats"
+        description: "Display plugin statistics"
+        enabled: true
+        responses:
+          title: "📈 **Plugin Statistics**"
+          no_permission: "❌ You don't have permission to use this command"
+      
+      serverstatus:
+        name: "serverstatus"
+        description: "Display Minecraft server status"
+        enabled: true
+        responses:
+          title: "🖥️ **Server Status**"
+          no_permission: "❌ You don't have permission to use this command"
+  
+  # Server logs channel (optional)
+  logs:
+    enabled: false
+    channel_id: ""  # Discord channel ID for server logs
+    
+    # Event-based logging
+    events:
+      player_join: true
+      player_leave: true
+      player_death: true
+      player_advancement: true
+      server_start: true
+      server_stop: true
+      plugin_reload: true
+      errors: true
+    
+    # Console logging - captures ALL server console output
+    console:
+      enabled: false  # Enable to capture all console logs
+      min_level: "INFO"  # Minimum log level: SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST
+      batch_size: 10  # Number of messages to send at once
+      # Filter specific loggers (empty = all loggers)
+      enabled_loggers: []
+      #  - "net.minecraft.server"
+      #  - "org.bukkit"
+      #  - "xyz.gonzyui.syncchats"
+    
+    format:
+      timestamp: true
+      server_name: true
+      message_count: true
+  
+  # Bot presence settings
   status:
-    # Type of status: WATCHING, PLAYING, or STREAMING.
-    # WATCHING: Bot is watching something (e.g., number of players in Minecraft).
-    # PLAYING: Bot is playing something (e.g., Minecraft).
-    # LISTENING: Bot is listening to something (e.g., Spotify).
-    type: "WATCHING"
+    type: "WATCHING"  # WATCHING, PLAYING, LISTENING
+    content: "{players} players online"
+    update_interval: 600  # seconds
 
-    # Customize the message the bot shows.
-    # Use the placeholder {players} to display the number of players online in Minecraft.
-    content: "{players} players in Minecraft."
+  # Bot settings for webhook messages
+  bot_name: "SyncChats"
+  bot_avatar: "https://www.spigotmc.org/data/resource_icons/123/123042.jpg?1741111607"
 
-chat_format:
-  # Minecraft ➝ Discord Message Format
-  # This controls how Minecraft messages appear in Discord.
-  # Available placeholders:
-  #   {player}  - The player's name
-  #   {message} - The player's message
-  minecraft_to_discord: "{message}"
+# Message display settings
+display:
+  # Use rich embeds for Discord messages
+  use_embeds: true
+  # Use player avatars in messages
+  use_avatars: true
+  # Show timestamps
+  show_timestamps: true
+  # Embed color (hex without #)
+  embed_color: "00ff00"
 
-  # Discord ➝ Minecraft Message Format
-  # This controls how Discord messages appear in Minecraft.
-  # Available placeholders:
-  #   {user}    - The Discord user's name
-  #   {message} - The Discord message
-  discord_to_minecraft: "§9[Discord] §r{user}: {message}"
+# Minecraft events to send to Discord
+minecraft_events:
+  enabled: true
+  # Event types to send
+  events:
+    join: true
+    leave: true
+    death: true
+    achievements: true
+    first_join: true
+  # Server name displayed in Discord
+  server_name: "SyncChats Server"
+
+# Message formatting
+messages:
+  # Chat messages
+  chat:
+    minecraft_to_discord: "{message}"
+    discord_to_minecraft: "§9[Discord] §r{user}: {message}"
+    
+  # Player events
+  events:
+    join: "🟢 **{player}** joined the server"
+    leave: "🔴 **{player}** left the server"
+    first_join: "🎉 **{player}** joined the server for the first time!"
+    death: "💀 {message}"
+    advancement: "🏆 **{player}** earned the advancement **{advancement}**"
+    server_status: "🖥️ **Server Status Report**\nPlayers: {players}/{max_players}\nPlayers Online: {player_list}"
+    
+  # System messages
+  system:
+    bot_connected: "✅ Discord bot connected successfully"
+    bot_disconnected: "❌ Discord bot disconnected"
+    server_started: "🚀 Server started with {players} players online"
+    server_stopped: "🛑 Server stopped"
+    mention_notification: "§e[Discord] You were mentioned by {discord_user}!"
+    bot_token_missing: "[SyncChats] Discord bot token or channel ID is missing in config.yml! Bot won't start."
+    bot_start_failed: "[SyncChats] Failed to start Discord bot: {error}"
+    bot_shutdown_success: "[SyncChats] Discord bot shutdown successfully."
+    bot_shutdown_failed: "[SyncChats] Failed to shutdown Discord bot: {error}"
+    bot_not_running_message: "[SyncChats] Discord bot is not running. Message not sent."
+    webhook_url_missing: "[SyncChats] Webhook URL is not set in config!"
+    webhook_error: "[SyncChats] Failed to send message to Discord Webhook: {error}"
+    webhook_response_error: "[SyncChats] Webhook error ({code}): {message}"
+    webhook_success: "[SyncChats] Message successfully sent to Discord!"
+    update_available: "New version available: {version}. Download: https://www.spigotmc.org/resources/syncchats.123042/"
+    update_error: "Failed to check for updates"
+    update_discord_username: "SyncChats"
+    update_discord_avatar: "https://www.spigotmc.org/data/resource_icons/123/123042.jpg?1741111607"
+    reload_starting: "§e[SyncChats] Reloading configuration..."
+    bot_restarting: "§e[SyncChats] Restarting Discord bot..."
+    bot_restart_success: "§a[SyncChats] Discord bot restarted successfully!"
+    
+  # Command responses
+  commands:
+    no_permission: "§cYou don't have permission to use this command."
+    reload_success: "§aConfiguration reloaded successfully!"
+    reload_error: "§cFailed to reload configuration: {error}"
+    stats_reset: "§aStatistics have been reset!"
+    bot_status_connected: "§aConnected"
+    bot_status_disconnected: "§cDisconnected"
+    stats_title: "§6========== SyncChats Statistics =========="
+    stats_separator: "§6========================================="
+    stats_bot_status: "Bot Status: {status}"
+    stats_started: "Started: {time}"
+    stats_messages_from_minecraft: "Messages from Minecraft: {count}"
+    stats_messages_to_minecraft: "Messages to Minecraft: {count}"
+    stats_total_messages: "Total Messages: {count}"
+    stats_discord_mode: "Discord Mode: {mode}"
+    stats_embeds_enabled: "Embeds Enabled: {enabled}"
+    status_header: "§e[SyncChats] Plugin Status:"
+    status_info: "Plugin: {plugin_status}\nDiscord Bot: {bot_status}"
+    plugin_status_active: "Active"
+    
+  # Error messages
+  errors:
+    rate_limit: "§cYou're sending messages too fast! Wait {seconds}s."
+    filtered_message: "§cYour message contains inappropriate content."
+    bot_not_running: "§cDiscord bot is not running."
+    invalid_config: "§cInvalid configuration. Please check your settings."
+
+# Message filtering system
+filter:
+  enabled: false
+  words: 
+    - "test"
+    - "spam"
+  allowed_users: []
+  action: "block"  # "filter" or "block"
+
+# Rate limiting
+rate_limiting:
+  enabled: true
+  max_messages_per_minute: 10
+  cooldown_seconds: 60
+
+# Advanced features
+features:
+  mentions: true
+  reactions: false
+  thread_support: false
+  update_channel_topic: false
+  auto_reconnect: true
+  webhook_failover: true  # Use webhook if bot fails
 
 # ============================================
 # End of Configuration
-# Once you've made changes, restart or reload your server for them to take effect!
 # ============================================

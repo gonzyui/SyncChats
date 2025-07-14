@@ -1,108 +1,124 @@
-<div align="center">
-  <img src="https://www.spigotmc.org/data/resource_icons/123/123042.jpg?1741111607" alt="logo" />
-</div>
+# SyncChats
 
-# 🌐 SyncChats - Minecraft & Discord Chat Synchronization
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.10-purple.svg)](https://kotlinlang.org/)
+[![Spigot](https://img.shields.io/badge/Spigot-1.20.1-orange.svg)](https://www.spigotmc.org/)
 
-SyncChats is a Minecraft plugin that synchronizes chat between your **Minecraft server** and a **Discord channel** using a webhook or a bot.
+**SyncChats** is a professional Minecraft plugin that enables bidirectional synchronization between Minecraft chat and Discord. Designed for production servers, it offers advanced filtering, rate limiting, and statistics tracking features.
 
-## 📥 Installation
+## ✨ Features
 
-### **1️⃣ Download the Plugin**
-1. Download the latest release from **[GitHub Releases](https://github.com/your-repo/releases)** or compile it yourself.
-2. Place the `SyncChats.jar` file into your **server's `plugins/` folder**.
+### 🔄 Chat Synchronization
+- **Bidirectional**: Minecraft ↔ Discord messages
+- **Flexible modes**: Webhook and Discord Bot
+- **Rich embeds**: Formatted messages with avatars
+- **Mentions**: Discord @mentions support
 
-### **2️⃣ Configure the Plugin**
-1. Start your server once to generate the `config.yml` file.
-2. Edit the `config.yml` inside `plugins/SyncChats/`.
+### 🛡️ Security & Performance
+- **Advanced filtering**: Blocked words, custom regex
+- **Rate limiting**: Anti-spam protection
+- **Smart caching**: Performance optimization
+- **Console logging**: Full server console capture to Discord
 
-### **3️⃣ Setup Discord Bot**
-1. [Create a Discord bot](https://discord.com/developers/applications).
-2. Enable **"MESSAGE CONTENT INTENT"** in **Bot Settings**.
-3. Copy your **Bot Token** and paste it into `config.yml`.
-4. **Invite the bot** to your Discord server with this URL: `https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot&permissions=68608`
+### 🎮 Discord Integration
+- **Slash commands**: Native Discord commands
+- **Rich embeds**: Beautiful formatted messages
+- **Event logging**: Player join/leave, deaths, achievements
+- **Bot presence**: Dynamic status updates
 
+### 📊 Statistics & Monitoring
+- **Real-time stats**: Message counts, active users
+- **Performance metrics**: Response times, cache hits
+- **Event tracking**: Server events and player actions
+- **Discord logs**: Complete server monitoring
 
-### **4️⃣ Setup Webhook (Optional)**
-1. Go to your Discord server settings.
-2. Navigate to **"Integrations" > "Webhooks"**.
-3. Create a new webhook, copy its URL, and paste it into `config.yml`.
+## 📦 Installation
 
-## ⚙️ Configuration (`config.yml`)
+1. Download the latest release
+2. Place the `.jar` file in your server's `plugins` folder
+3. Configure the plugin in `config.yml`
+4. Set up your Discord bot and obtain a token
+5. Configure Discord channel IDs and permissions
+6. Restart your server
+
+## ⚙️ Configuration
 
 ```yaml
-# ============================================
-# SyncChats Configuration File
-# This file controls how Minecraft chat syncs with Discord.
-# Customize this file to configure how your Minecraft server communicates with Discord!
-# ============================================
-version: 1.0.3
-
-updates:
-  # Enable automatic update checks for the plugin.
-  # When enabled, the plugin will notify you if a new version is available!
-  check: true
-  # If enabled, SyncChats will send a Discord notification when a new update is available.
-  discordNotify: true
-
-minecraft_events:
-  # Enable or disable sending events (player joining/leaving) to Discord.
-  enabled: true
-  # Customize the message sent to Discord when a player joins the server.
-  # The placeholder {player} will be replaced by the player's name.
-  join_message: "{player} joined the server."
-  # Customize the message sent to Discord when a player leaves the server.
-  # The placeholder {player} will be replaced by the player's name.
-  left_message: "{player} left the server."
-  # Customize the name of the Webhook sender (e.g., "Server" or "Minecraft Server").
-  server_name: "SyncChats"
-
 discord:
-  # Discord Bot Token
-  # This token is required for the bot to send and receive messages in Discord.
-  # Never share your bot token! Keep it secret to avoid misuse.
-  token: "YOUR_DISCORD_BOT_TOKEN_HERE"
+  token: ""
+  channel_id: ""
+  webhook_url: ""
+  
+  # Communication mode: "bot", "webhook", or "both"
+  mode: "both"
+  
+  # Slash Commands
+  commands:
+    enabled: true
+    admin_users:
+      - ""
+  
+  # Console Logging
+  logs:
+    enabled: false
+    channel_id: ""
+    console:
+      enabled: false
+      min_level: "INFO"
 
-  # Discord Channel ID
-  # This is the ID of the Discord channel where the bot will listen for messages.
-  # To find this, enable Developer Mode in Discord and right-click the channel.
-  channel_id: "YOUR_DISCORD_CHANNEL_ID_HERE"
+# Message filtering system
+filter:
+  enabled: true
+  words: []
+  allowed_users: []
+  action: "block"
 
-  # Webhook URL
-  # If you want to send messages from Minecraft to Discord without using the bot, enter the webhook URL here.
-  # If left empty, the bot itself will send messages to Discord.
-  webhook_url: "YOUR_DISCORD_WEBHOOK_URL_HERE"
-
-  # Bot Status Configuration
-  # Customize the activity/status that your Discord bot shows.
-  status:
-    # Type of status: WATCHING, PLAYING, or STREAMING.
-    # WATCHING: Bot is watching something (e.g., number of players in Minecraft).
-    # PLAYING: Bot is playing something (e.g., Minecraft).
-    # LISTENING: Bot is listening to something (e.g., Spotify).
-    type: "WATCHING"
-
-    # Customize the message the bot shows.
-    # Use the placeholder {players} to display the number of players online in Minecraft.
-    content: "{players} players in Minecraft."
-
-chat_format:
-  # Minecraft ➝ Discord Message Format
-  # This controls how Minecraft messages appear in Discord.
-  # Available placeholders:
-  #   {player}  - The player's name
-  #   {message} - The player's message
-  minecraft_to_discord: "{message}"
-
-  # Discord ➝ Minecraft Message Format
-  # This controls how Discord messages appear in Minecraft.
-  # Available placeholders:
-  #   {user}    - The Discord user's name
-  #   {message} - The Discord message
-  discord_to_minecraft: "§9[Discord] §r{user}: {message}"
-
-# ============================================
-# End of Configuration
-# Once you've made changes, restart or reload your server for them to take effect!
-# ============================================
+# Rate limiting
+rate_limiting:
+  enabled: true
+  max_messages_per_minute: 10
+  cooldown_seconds: 60
 ```
+and more..
+
+## 🔧 Commands
+
+### Discord Slash Commands
+- `/reload` - Reload plugin configuration
+- `/status` - Show plugin status
+- `/stats` - Display plugin statistics
+- `/serverstatus` - Show server status and player count
+
+### Minecraft Commands
+- `/syncchatsreload` - Reload plugin configuration
+- `/syncchatsstatus` - Show plugin status
+- `/syncchatsstats` - Display statistics
+- `/syncchatsserverstatus` - Show server status
+
+## 🛡️ Permissions
+
+Configure permissions in the `config.yml` file using Discord user IDs and role IDs.
+
+## 📋 Requirements
+
+- Minecraft Server (Spigot/Paper 1.13+)
+- Java 17 or higher
+- Discord Bot Token
+- Discord Server with appropriate permissions
+
+## 🚀 Build Information
+
+- **Build System**: Gradle 8.10
+- **Language**: Kotlin 2.1.10
+- **Target**: Java 17
+- **Framework**: Spigot API 1.20.1
+- **Discord Library**: JDA 5.0.0-beta.12
+- **Output**: Fat JAR (6.4MB) with all dependencies included
+
+## 🤝 Support
+
+For support, please open an issue on the GitHub repository.
+
+## 📄 License
+
+This project is licensed under the MIT License.

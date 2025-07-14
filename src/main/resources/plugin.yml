@@ -1,9 +1,13 @@
 name: SyncChats
 main: xyz.gonzyui.syncchats.SyncChats
-version: 1.0.3
-api-version: 1.13
+version: 1.0.4
+api-version: 1.20
 authors: [gonzyui]
-description: Synchronizes Minecraft chat with a Discord channel.
+description: Synchronizes Minecraft chat with a Discord channel with advanced features.
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:2.1.10
+  - org.jetbrains.kotlin:kotlin-reflect:2.1.10
+  - org.json:json:20230227
 
 commands:
   syncchatsreload:
@@ -20,6 +24,20 @@ commands:
     permission-message: You don't have permission to use this command!
     aliases: [scstatus, scs]
 
+  syncchatsstats:
+    description: Shows statistics about message synchronization.
+    usage: /syncchatsstats [reset]
+    permission: syncchats.stats
+    permission-message: You don't have permission to use this command!
+    aliases: [scstats]
+
+  syncchatsserverstatus:
+    description: Sends current server status to Discord.
+    usage: /syncchatsserverstatus
+    permission: syncchats.serverstatus
+    permission-message: You don't have permission to use this command!
+    aliases: [scserverstatus, scss]
+
 permissions:
   syncchats.reload:
     description: Allows reloading the plugin configuration.
@@ -28,3 +46,25 @@ permissions:
   syncchats.status:
     description: Allows checking the status of the plugin and Discord bot.
     default: op
+
+  syncchats.stats:
+    description: Allows viewing synchronization statistics.
+    default: op
+
+  syncchats.stats.reset:
+    description: Allows resetting synchronization statistics.
+    default: op
+
+  syncchats.serverstatus:
+    description: Allows sending server status to Discord.
+    default: op
+
+  syncchats.*:
+    description: Gives access to all SyncChats commands.
+    default: op
+    children:
+      syncchats.reload: true
+      syncchats.status: true
+      syncchats.stats: true
+      syncchats.stats.reset: true
+      syncchats.serverstatus: true
